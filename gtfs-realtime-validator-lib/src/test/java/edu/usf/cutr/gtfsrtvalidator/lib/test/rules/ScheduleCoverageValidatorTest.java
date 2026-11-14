@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2026 University of South Florida.
+ * Copyright (C) 2026 Evan Siroky.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
