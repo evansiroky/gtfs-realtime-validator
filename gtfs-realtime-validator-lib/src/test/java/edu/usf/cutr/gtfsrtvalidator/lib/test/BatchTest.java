@@ -44,9 +44,10 @@ public class BatchTest {
         ObjectMapper mapper = new ObjectMapper();
         ErrorListHelperModel[] allErrorLists = mapper.readValue(new File("src/test/resources/bullrunner-vehicle-positions" + BatchProcessor.RESULTS_FILE_EXTENSION), ErrorListHelperModel[].class);
 
-        // We should have 3 warnings - W001, W006, and W009, with 10 occurrences each.
-        // If running on Travis we may have another warning, W008, due to timestamp being older than 65 seconds
-        assertTrue(allErrorLists.length == 3 || allErrorLists.length == 4);
+        // We should have these warnings: W001, W006, W009, and W015 (stale vehicle timestamps), with 10 occurrences each, and
+        // W017 (feed-wide stale vehicle timestamps) with 1 occurrence.
+        // We may have another warning, W008, due to timestamp being older than 65 seconds
+        assertTrue(allErrorLists.length == 5 || allErrorLists.length == 6);
         for (ErrorListHelperModel model : allErrorLists) {
             switch (model.getErrorMessage().getValidationRule().getErrorId()) {
                 case "W001":
@@ -60,6 +61,12 @@ public class BatchTest {
                     break;
                 case "W009":
                     assertEquals(10, model.getOccurrenceList().size());
+                    break;
+                case "W015":
+                    assertEquals(10, model.getOccurrenceList().size());
+                    break;
+                case "W017":
+                    assertEquals(1, model.getOccurrenceList().size());
                     break;
             }
         }

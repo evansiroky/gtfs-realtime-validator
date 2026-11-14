@@ -68,6 +68,14 @@ Rules are declared in the [`ValidationRules` class](https://github.com/CUTR-at-U
 | [W007](#W007) | Refresh interval is more than 35 seconds
 | [W008](#W008) | Header `timestamp` is older than 65 seconds
 | [W009](#W009) | `schedule_relationship` not populated
+| [W010](#W010) | Scheduled in-service `trip_id` not in TripUpdates feed
+| [W011](#W011) | Most scheduled in-service trips not in TripUpdates feed
+| [W012](#W012) | Most scheduled in-service trips not in VehiclePositions feed
+| [W013](#W013) | Scheduled in-service `trip_id` not in VehiclePositions feed
+| [W014](#W014) | `TripUpdate` `timestamp` missing or stale
+| [W015](#W015) | `VehiclePosition` `timestamp` missing or stale
+| [W016](#W016) | Many `TripUpdate` `timestamps` missing or stale
+| [W017](#W017) | Many `VehiclePosition` `timestamps` missing or stale
 
 # Errors
 
@@ -821,3 +829,81 @@ The data in a GTFS-realtime feed should always be less than one minute old.
 #### References:
 * [`trip.schedule_relationship`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#enum-schedulerelationship-1)
 * [`stop_time_update.schedule_relationship`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#enum-schedulerelationship)
+
+<a name="W010"/>
+
+### W010 - Scheduled in-service `trip_id` not in TripUpdates feed
+
+Each trip that the GTFS data says should be in service at the time the feed was downloaded should have a `TripUpdate` with that `trip_id` in the TripUpdates feed.
+
+A trip is considered in service if its `service_id` is active on the current service date (or yesterday's, for trips running past midnight) and the current time is between the trip's first and last `stop_times.txt` times. Trips defined in `frequencies.txt` are not checked. If multiple GTFS-realtime feeds are monitored for the same GTFS data, a `TripUpdate` in any of them counts. A `TripUpdate` with `schedule_relationship` `CANCELED` also counts as accounting for the trip.
+
+From the [GTFS Realtime Best Practices](https://gtfs.org/realtime/best-practices/):
+
+>Feeds should cover the vast majority of trips included in the companion static GTFS dataset. In particular, it should include data for high-density and high-traffic city areas and busy routes.
+
+See also [W011](#W011) for the feed-wide version of this rule.
+
+<a name="W011"/>
+
+### W011 - Most scheduled in-service trips not in TripUpdates feed
+
+Fewer than 90% of the trips that are scheduled to be in service at the time the feed was downloaded (see [W010](#W010)) have a `TripUpdate` in the TripUpdates feed.
+
+The 90% threshold is the validator's definition of the "vast majority" of trips recommended by the [GTFS Realtime Best Practices](https://gtfs.org/realtime/best-practices/).
+
+<a name="W012"/>
+
+### W012 - Most scheduled in-service trips not in VehiclePositions feed
+
+Fewer than 90% of the non-canceled trips that are scheduled to be in service at the time the feed was downloaded have a `VehiclePosition` with that `trip.trip_id` in the VehiclePositions feed.
+
+Trips with `schedule_relationship` `CANCELED` in a `TripUpdate` are not expected to have a vehicle. Cancellations are only found if the TripUpdates feed is monitored along with the VehiclePositions feed. See [W013](#W013) for the trip-level version of this rule, which describes how trips in service are determined.
+
+<a name="W013"/>
+
+### W013 - Scheduled in-service `trip_id` not in VehiclePositions feed
+
+Each non-canceled trip that is scheduled to be in service at the time the feed was downloaded should have a `VehiclePosition` with that `trip.trip_id` in the VehiclePositions feed. Trips in service are determined as described in [W010](#W010).
+
+From the [GTFS Realtime Best Practices](https://gtfs.org/realtime/best-practices/):
+
+>Feeds should cover the vast majority of trips included in the companion static GTFS dataset. In particular, it should include data for high-density and high-traffic city areas and busy routes.
+
+<a name="W014"/>
+
+### W014 - `TripUpdate` `timestamp` missing or stale
+
+Each `TripUpdate` should have a `timestamp` that is not older than 90 seconds. This is logged for each `TripUpdate` with no `timestamp` or one that is more than 90 seconds old. A missing timestamp is also reported by [W001](#W001).
+
+From the [GTFS Realtime Best Practices](https://gtfs.org/realtime/best-practices/):
+
+>Data within a GTFS Realtime feed should not be older than 90 seconds for Trip Updates and Vehicle Positions and not older than 10 minutes for Service Alerts.
+
+#### References:
+* [`trip_update.timestamp`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-tripupdate)
+
+<a name="W015"/>
+
+### W015 - `VehiclePosition` `timestamp` missing or stale
+
+Each `VehiclePosition` should have a `timestamp` that is not older than 90 seconds. This is logged for each `VehiclePosition` with no `timestamp` or one that is more than 90 seconds old. A missing timestamp is also reported by [W001](#W001).
+
+From the [GTFS Realtime Best Practices](https://gtfs.org/realtime/best-practices/):
+
+>Data within a GTFS Realtime feed should not be older than 90 seconds for Trip Updates and Vehicle Positions and not older than 10 minutes for Service Alerts.
+
+#### References:
+* [`vehicle_position.timestamp`](https://github.com/google/transit/blob/master/gtfs-realtime/spec/en/reference.md#message-vehicleposition)
+
+<a name="W016"/>
+
+### W016 - Many `TripUpdate` `timestamps` missing or stale
+
+At least 50% of the `TripUpdates` in the feed have a missing or stale `timestamp` (see [W014](#W014)). This is logged once for the feed.
+
+<a name="W017"/>
+
+### W017 - Many `VehiclePosition` `timestamps` missing or stale
+
+At least 50% of the `VehiclePositions` in the feed have a missing or stale `timestamp` (see [W015](#W015)). This is logged once for the feed.

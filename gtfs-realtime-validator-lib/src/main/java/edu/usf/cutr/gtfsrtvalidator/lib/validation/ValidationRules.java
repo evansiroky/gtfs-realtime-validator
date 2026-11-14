@@ -56,6 +56,30 @@ public class ValidationRules {
     public static final ValidationRule W009 = new ValidationRule("W009", "WARNING", "schedule_relationship not populated",
             "trip.schedule_relationship and stop_time_update.schedule_relationship should be populated",
             "does not have a schedule_relationship");
+    public static final ValidationRule W010 = new ValidationRule("W010", "WARNING", "Scheduled in-service trip_id not in TripUpdates feed",
+            "Each trip that is scheduled to be in service at the time the feed was downloaded should have a TripUpdate in the TripUpdates feed",
+            "is scheduled to be in service but does not have a TripUpdate in the TripUpdates feed");
+    public static final ValidationRule W011 = new ValidationRule("W011", "WARNING", "Most scheduled in-service trips not in TripUpdates feed",
+            "The TripUpdates feed should cover the vast majority of trips that are scheduled to be in service at the time the feed was downloaded",
+            "which is less than the recommended coverage of 90% of scheduled in-service trips");
+    public static final ValidationRule W012 = new ValidationRule("W012", "WARNING", "Most scheduled in-service trips not in VehiclePositions feed",
+            "The VehiclePositions feed should cover the vast majority of non-canceled trips that are scheduled to be in service at the time the feed was downloaded",
+            "which is less than the recommended coverage of 90% of scheduled in-service trips");
+    public static final ValidationRule W013 = new ValidationRule("W013", "WARNING", "Scheduled in-service trip_id not in VehiclePositions feed",
+            "Each non-canceled trip that is scheduled to be in service at the time the feed was downloaded should have a VehiclePosition in the VehiclePositions feed",
+            "is scheduled to be in service but does not have a VehiclePosition in the VehiclePositions feed");
+    public static final ValidationRule W014 = new ValidationRule("W014", "WARNING", "TripUpdate timestamp missing or stale",
+            "Each TripUpdate should have a timestamp that is not older than 90 seconds",
+            "has a missing or stale timestamp");
+    public static final ValidationRule W015 = new ValidationRule("W015", "WARNING", "VehiclePosition timestamp missing or stale",
+            "Each VehiclePosition should have a timestamp that is not older than 90 seconds",
+            "has a missing or stale timestamp");
+    public static final ValidationRule W016 = new ValidationRule("W016", "WARNING", "Many TripUpdate timestamps missing or stale",
+            "At most half of the TripUpdates in a feed should have a missing or stale timestamp",
+            "which is at or above the 50% threshold for a feed");
+    public static final ValidationRule W017 = new ValidationRule("W017", "WARNING", "Many VehiclePosition timestamps missing or stale",
+            "At most half of the VehiclePositions in a feed should have a missing or stale timestamp",
+            "which is at or above the 50% threshold for a feed");
 
     /**
      * Errors
